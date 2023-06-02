@@ -1,24 +1,63 @@
 const express = require("express");
+const hbs = require("hbs");
+const mongoose = require("mongoose");
+
+const Pizza = require("./models/Pizza.model");
 
 const app = express();
 
 app.use(express.static("public")); // Make everything inside of public/ available
 
-// app.get(path, code);
-// app.get(path, (req, res, next) => {});
+app.set("views", __dirname + "/views"); //tells our Express app where to look for our views
+app.set("view engine", "hbs"); //sets HBS as the template engine
+
+hbs.registerPartials(__dirname + "/views/partials"); //tell HBS which directory we use for partials
+
+mongoose
+  .connect("mongodb://127.0.0.1/loopeyRestaurant")
+  .then((x) => {
+    console.log(`Connected! Database name: "${x.connections[0].name}"`);
+  })
+  .catch((e) => console.log("error connecting to DB", e));
 
 // GET /
 app.get("/", (req, res, next) => {
-  console.log("we have received a request for the HOMEPAGE");
-  //res.send("");
-
-  res.sendFile(__dirname + "/views/home-page.html");
+  res.render("home-page");
 });
 
 // GET /contact
 app.get("/contact", (req, res, next) => {
-  res.sendFile(__dirname + "/views/contact-page.html");
+  res.render("contact-page");
 });
+
+// GET /pizzas
+app.get("/pizzas", (req, res, next) => {
+  Pizza.find()
+    .then((pizzas) => {
+      const data = {
+        pizzasArr: pizzas,
+      };
+
+      res.render("product-list", data);
+    })
+    .catch((e) => console.log("error getting pizzas from DB", e));
+});
+
+app.get("/pizzas/:pizzaName", (req, res, next) => {
+  Pizza.findOne({ title: req.params.pizzaName })
+    .then((pizzaFromDB) => {
+      // console.log(pizzaFromDB)
+      res.render("product", pizzaFromDB);
+    })
+    .catch((e) => console.log("error getting pizza from DB", e));
+});
+
+//////////////////////////////////////////////////////////////////////
+//app.get("/drinks/:drinkName", (req, res, next) => {               //
+//  console.log(req.params);                                        //
+//  res.send(`display info about.... ${req.params.drinkName}`);     //
+//});                                                               //
+//////////////////////////////////////////////////////////////////////
 
 app.listen(3000, () => {
   console.log("server listening on port 3000...");

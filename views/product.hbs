@@ -1,0 +1,25 @@
+<h1>Pizza {{title}} </h1>
+
+{{#if price}}
+  <h2>Price {{price}}€ </h2>
+{{else}}
+  <h2>Price upon request</h2>
+{{/if}}
+<div>
+  <h2>Ingredients</h2>
+
+  <ul>
+    {{#each ingredients}}
+      <li>{{this}}</li>
+    {{/each}}
+  </ul>
+  
+  {{#if isVeggie}}
+  <h3>Veggie-pizza </h3>
+
+{{/if}}
+
+</div>
+<img src="/images/{{imageFile}}" alt="" />
+
+{{> banner}}
